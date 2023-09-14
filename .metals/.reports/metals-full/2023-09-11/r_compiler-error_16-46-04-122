@@ -1,3 +1,10 @@
+java.lang.IndexOutOfBoundsException: 0
+occurred in the presentation compiler.
+
+action parameters:
+offset: 17519
+uri: file://<WORKSPACE>/src/main/scala/nutcore/frontend/BPU.scala
+text:
 /**************************************************************************************
 * Copyright (c) 2020 Institute of Computing Technology, CAS
 * Copyright (c) 2020 University of Chinese Academy of Sciences
@@ -391,7 +398,7 @@ class BPU_inorder extends NutCoreModule {
   when (reqLatch.valid && ALUOpType.isBranch(reqLatch.fuOpType)) {
     val taken = reqLatch.actualTaken
     val newCnt = Mux(taken, cnt + 1.U, cnt - 1.U)
-    val wen = (taken && (cnt =/= "b11".U)) || (!taken && (cnt =/= "b00".U))    // 11/00 不会写入,降低功耗
+    val wen = (taken && (cnt =/= "b11".U)) || (!taken && (cnt =/= "b00".U))    // 11/00 不会写入,@@
     when (wen) {
       pht.write(btbAddr.getIdx(reqLatch.pc), newCnt)
       //Debug(){
@@ -400,7 +407,7 @@ class BPU_inorder extends NutCoreModule {
     }
   }
   when (req.valid) {
-    when (req.fuOpType === ALUOpType.call)  {  //ECall
+    when (req.fuOpType === ALUOpType.call)  {
       ras.write(sp.value + 1.U, Mux(req.isRVC, req.pc + 2.U, req.pc + 4.U))
       // raBrIdxs.write(sp.value + 1.U, Mux(req.pc(1), 2.U, 1.U))
       sp.value := sp.value + 1.U
@@ -474,3 +481,16 @@ class BPU_nodelay extends NutCoreModule {
   io.out.rtype := 0.U
 }
 */
+
+
+error stacktrace:
+scala.collection.LinearSeqOps.apply(LinearSeq.scala:131)
+	scala.collection.LinearSeqOps.apply$(LinearSeq.scala:128)
+	scala.collection.immutable.List.apply(List.scala:79)
+	dotty.tools.dotc.util.Signatures$.countParams(Signatures.scala:501)
+	dotty.tools.dotc.util.Signatures$.applyCallInfo(Signatures.scala:186)
+	dotty.tools.dotc.util.Signatures$.computeSignatureHelp(Signatures.scala:94)
+	dotty.tools.dotc.util.Signatures$.signatureHelp(Signatures.scala:63)
+	scala.meta.internal.pc.MetalsSignatures$.signatures(MetalsSignatures.scala:17)
+	scala.meta.internal.pc.SignatureHelpProvider$.signatureHelp(SignatureHelpProvider.scala:51)
+	scala.meta.internal.pc.ScalaPresentationCompiler.signatureHelp$$anonfun$1(ScalaPresentationCompiler.scala:371)

@@ -33,9 +33,9 @@ class Decoder(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstr
 
   val hasIntr = Wire(Bool())
   val instr = io.in.bits.instr
-  val decodeList = ListLookup(instr, Instructions.DecodeDefault, Instructions.DecodeTable)
-  val instrType :: fuType :: fuOpType :: Nil = // insert Instructions.DecodeDefault when interrupt comes
-    Instructions.DecodeDefault.zip(decodeList).map{case (intr, dec) => Mux(hasIntr || io.in.bits.exceptionVec(instrPageFault) || io.out.bits.cf.exceptionVec(instrAccessFault), intr, dec)}
+  val decodeList = ListLookup(instr, Instructions.DecodeDefault, Instructions.DecodeTable)  // 指令类型/指令运行功能单元/执行操作
+  val instrType :: fuType :: fuOpType :: Nil = // insert Instructions.DecodeDefault when interrupt comes  //NOTE - zip:将Default与decodeList压缩为一个新的元组列表
+    Instructions.DecodeDefault.zip(decodeList).map{case (intr, dec) => Mux(hasIntr || io.in.bits.exceptionVec(instrPageFault) || io.out.bits.cf.exceptionVec(instrAccessFault), intr, dec)} //FIXME - 混合使用:通过中断条件选择输出结果
   // val instrType :: fuType :: fuOpType :: Nil = ListLookup(instr, Instructions.DecodeDefault, Instructions.DecodeTable)
   val isRVC = if (HasCExtension) instr(1,0) =/= "b11".U else false.B
   val rvcImmType :: rvcSrc1Type :: rvcSrc2Type :: rvcDestType :: Nil =
@@ -56,7 +56,7 @@ class Decoder(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstr
     InstrJ -> (SrcType.pc , SrcType.imm),
     InstrN -> (SrcType.pc , SrcType.imm)
   )
-  val src1Type = LookupTree(instrType, SrcTypeTable.map(p => (p._1, p._2._1)))
+  val src1Type = LookupTree(instrType, SrcTypeTable.map(p => (p._1, p._2._1))) // NOTE - p._1:指令类型;p._2._1匹配后面结果:(可以返回指令类型)
   val src2Type = LookupTree(instrType, SrcTypeTable.map(p => (p._1, p._2._2)))
 
   val (rs, rt, rd) = (instr(19, 15), instr(24, 20), instr(11, 7))
@@ -150,7 +150,7 @@ class Decoder(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstr
   )
 
   io.out.bits.ctrl.isNutCoreTrap := (instr(31,0) === NutCoreTrap.TRAP) && io.in.valid
-  io.out.bits.ctrl.noSpecExec := NoSpecList.map(j => io.out.bits.ctrl.fuType === j).reduce(_ || _)
+  io.out.bits.ctrl.noSpecExec := NoSpecList.map(j => io.out.bits.ctrl.fuType === j).reduce(_ || _) // map返回结果为bool,并将列表结果进行或(只要列表结果有一个true,结果true) // NOTE - reduce高阶参数,接受一个二元操作函数为参数
   io.out.bits.ctrl.isBlocked :=
   (
     io.out.bits.ctrl.fuType === FuType.lsu && LSUOpType.isAtom(io.out.bits.ctrl.fuOpType) ||
@@ -168,7 +168,7 @@ class Decoder(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstr
 
   val intrVec = WireInit(0.U(12.W))
   BoringUtils.addSink(intrVec, "intrVecIDU")
-  io.out.bits.cf.intrVec.zip(intrVec.asBools).map{ case(x, y) => x := y }
+  io.out.bits.cf.intrVec.zip(intrVec.asBools).map{ case(x, y) => x := y }    // 将out与intrVec组成一个2*12*bool列表,然后将y逐位赋给x,时钟中断
   hasIntr := intrVec.orR
 
   val vmEnable = WireInit(false.B)
@@ -191,7 +191,7 @@ class Decoder(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstr
 
 class IDU(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstrType {
   val io = IO(new Bundle {
-    val in = Vec(2, Flipped(Decoupled(new CtrlFlowIO)))
+    val in = Vec(2, Flipped(Decoupled(new CtrlFlowIO)))   // 2-way decode
     val out = Vec(2, Decoupled(new DecodeIO))
   })
   val decoder1  = Module(new Decoder)
