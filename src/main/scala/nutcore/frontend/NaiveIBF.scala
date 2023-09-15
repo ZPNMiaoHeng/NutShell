@@ -39,7 +39,7 @@ class NaiveRVCAlignBuffer extends NutCoreModule with HasInstrType with HasExcept
   val state = RegInit(UInt(2.W), s_idle)
   val pcOffsetR = RegInit(UInt(3.W), 0.U)
   val pcOffset = Mux(state === s_idle, io.in.bits.pc(2,0), pcOffsetR)
-  val instIn = Cat(0.U(16.W), io.in.bits.instr)
+  val instIn = Cat(0.U(16.W), io.in.bits.instr)    //* 80.W
   // val nextState = WireInit(0.U(2.W))
   val canGo = WireInit(false.B)
   val canIn = WireInit(false.B)

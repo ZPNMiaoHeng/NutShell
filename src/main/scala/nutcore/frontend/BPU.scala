@@ -283,7 +283,7 @@ class BPU_inorder extends NutCoreModule {
     val out = new RedirectIO
     val flush = Input(Bool())
     val brIdx = Output(UInt(3.W))     // ANCHOR - ????
-    val crosslineJump = Output(Bool()) // ANCHOR - ????
+    val crosslineJump = Output(Bool()) // ANCHOR - 不是pc[2:0] =/= 110,BTB命中
   })
 
   val flush = BoolStopWatch(io.flush, io.in.pc.valid, startHighPriority = true)  // NOTE - 自定义控制状态：开始/停止 以及优先级； io.flush > pc.valid, 当flush无效，valid有效，flush为0
