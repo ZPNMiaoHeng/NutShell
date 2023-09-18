@@ -68,8 +68,8 @@ object ALUOpType {
 
 class ALUIO extends FunctionUnitIO {
   val cfIn = Flipped(new CtrlFlowIO)
-  val redirect = new RedirectIO
-  val offset = Input(UInt(XLEN.W))
+  val redirect = new RedirectIO             //* 分支跳转指令结果
+  val offset = Input(UInt(XLEN.W))          //FIXME - ???
 }
 
 class ALU(hasBru: Boolean = false) extends NutCoreModule {

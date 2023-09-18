@@ -94,7 +94,7 @@ class Frontend_embedded(implicit val p: NutCoreConfig) extends NutCoreModule wit
 
 class Frontend_inorder(implicit val p: NutCoreConfig) extends NutCoreModule with HasFrontendIO {
   val ifu  = Module(new IFU_inorder)
-  val ibf = Module(new NaiveRVCAlignBuffer)
+  val ibf = Module(new NaiveRVCAlignBuffer)   //* 指令对齐缓冲 instruction buffer function
   val idu  = Module(new IDU)
 
   def PipelineConnect2[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T],

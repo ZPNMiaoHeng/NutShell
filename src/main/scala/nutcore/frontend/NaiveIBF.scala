@@ -23,6 +23,7 @@ import chisel3.util.experimental.BoringUtils
 import utils._
 
 // 1-width Naive Instruction Align Buffer
+//* 不懂rvc
 class NaiveRVCAlignBuffer extends NutCoreModule with HasInstrType with HasExceptionNO {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new CtrlFlowIO))
@@ -31,7 +32,7 @@ class NaiveRVCAlignBuffer extends NutCoreModule with HasInstrType with HasExcept
   })
 
   val instr = Wire(UInt(32.W))
-  val isRVC = instr(1,0) =/= "b11".U
+  val isRVC = instr(1,0) =/= "b11".U    // ???
 
   //RVC support FSM
   //only ensure pnpc given by this FSM is right. May need flush after 6 offset 32 bit inst
@@ -39,7 +40,7 @@ class NaiveRVCAlignBuffer extends NutCoreModule with HasInstrType with HasExcept
   val state = RegInit(UInt(2.W), s_idle)
   val pcOffsetR = RegInit(UInt(3.W), 0.U)
   val pcOffset = Mux(state === s_idle, io.in.bits.pc(2,0), pcOffsetR)
-  val instIn = Cat(0.U(16.W), io.in.bits.instr)    //* 80.W
+  val instIn = Cat(0.U(16.W), io.in.bits.instr)    //* 80.W :指令横跨两次ICache结果,拼接指令
   // val nextState = WireInit(0.U(2.W))
   val canGo = WireInit(false.B)
   val canIn = WireInit(false.B)
