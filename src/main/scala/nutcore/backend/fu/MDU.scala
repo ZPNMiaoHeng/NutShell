@@ -56,13 +56,13 @@ class Multiplier(len: Int) extends NutCoreModule {
   def DSPInPipe[T <: Data](a: T) = RegNext(a)
   def DSPOutPipe[T <: Data](a: T) = RegNext(RegNext(RegNext(a)))
   val mulRes = (DSPInPipe(io.in.bits(0)).asSInt * DSPInPipe(io.in.bits(1)).asSInt)
-  io.out.bits := DSPOutPipe(mulRes).asUInt
+  io.out.bits := DSPOutPipe(mulRes).asUInt               //NOTE - latency 3  clock
   io.out.valid := DSPOutPipe(DSPInPipe(io.in.fire()))
 
   val busy = RegInit(false.B)
   when (io.in.valid && !busy) { busy := true.B }
   when (io.out.valid) { busy := false.B }
-  io.in.ready := (if (latency == 0) true.B else !busy)
+  io.in.ready := (if (latency == 0) true.B else !busy)   //NOTE - mul 是否延迟相应
 }
 
 class Divider(len: Int = 64) extends NutCoreModule {
@@ -78,13 +78,13 @@ class Divider(len: Int = 64) extends NutCoreModule {
   val newReq = (state === s_idle) && io.in.fire()
 
   val (a, b) = (io.in.bits(0), io.in.bits(1))
-  val divBy0 = b === 0.U(len.W)
+  val divBy0 = b === 0.U(len.W)  // 判断除数是否为0
 
   val shiftReg = Reg(UInt((1 + len * 2).W))
   val hi = shiftReg(len * 2, len)
   val lo = shiftReg(len - 1, 0)
 
-  val (aSign, aVal) = abs(a, io.sign)
+  val (aSign, aVal) = abs(a, io.sign)    // 将操作数进行绝对值转换
   val (bSign, bVal) = abs(b, io.sign)
   val aSignReg = RegEnable(aSign, newReq)
   val qSignReg = RegEnable((aSign ^ bSign) && !divBy0, newReq)
@@ -157,7 +157,7 @@ class MDU extends NutCoreModule {
 
   val signext = SignExt(_: UInt, XLEN+1)
   val zeroext = ZeroExt(_: UInt, XLEN+1)
-  val mulInputFuncTable = List(
+  val mulInputFuncTable = List(                //FIXME - 为啥这么使用扩展呢??
     MDUOpType.mul    -> (zeroext, zeroext),
     MDUOpType.mulh   -> (signext, signext),
     MDUOpType.mulhsu -> (signext, zeroext),

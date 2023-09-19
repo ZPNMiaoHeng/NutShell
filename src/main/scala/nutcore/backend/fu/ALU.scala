@@ -75,6 +75,7 @@ class ALUIO extends FunctionUnitIO {
 class ALU(hasBru: Boolean = false) extends NutCoreModule {
   val io = IO(new ALUIO)
 
+  //FIXME - ALU.io端口没有in!!!! 输入的io.in数据和accrss函数, 是不是相等呢
   val (valid, src1, src2, func) = (io.in.valid, io.in.bits.src1, io.in.bits.src2, io.in.bits.func)
   def access(valid: Bool, src1: UInt, src2: UInt, func: UInt): UInt = {
     this.valid := valid

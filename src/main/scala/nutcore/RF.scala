@@ -32,7 +32,7 @@ class RegFile extends HasRegFileParameter with HasNutCoreParameter {
   def write(addr: UInt, data: UInt) = { rf(addr) := data(XLEN-1,0) }
 } 
 
-class ScoreBoard extends HasRegFileParameter {
+class ScoreBoard extends HasRegFileParameter {   //NOTE - ooo
   val busy = RegInit(0.U(NRReg.W))
   def isBusy(idx: UInt): Bool = busy(idx)
   def mask(idx: UInt) = (1.U(NRReg.W) << idx)(NRReg-1, 0)

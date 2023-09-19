@@ -748,7 +748,7 @@ class CSR(implicit val p: NutCoreConfig) extends NutCoreModule with HasCSRConst{
     "MmmioInstr"  -> (0xb0b, "perfCntCondMmmioInstr" ),
     "MicacheHit"  -> (0xb0c, "perfCntCondMicacheHit" ),
     "MdcacheHit"  -> (0xb0d, "perfCntCondMdcacheHit" ),
-    "MmulInstr"   -> (0xb0e, "perfCntCondMmulInstr"  ),
+    "MmulInstr"   -> (0xb0e, "perfCntCondMmulInstr"  ),   //! Boring.addsink
     "MifuFlush"   -> (0xb0f, "perfCntCondMifuFlush"  ),
     "MbpBRight"   -> (0xb10, "MbpBRight"             ),
     "MbpBWrong"   -> (0xb11, "MbpBWrong"             ),
